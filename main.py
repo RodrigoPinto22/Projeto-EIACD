@@ -1,5 +1,5 @@
 from create_board import create_board
-from show_board import print_jogo
+from play_game import make_move
 
-game = create_board()
-print_jogo(game)
+board_info = create_board()
+make_move(board_info)
