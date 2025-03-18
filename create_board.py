@@ -1,23 +1,29 @@
 import random
 
 def create_board():
-    cores = ["vermelho", "verde", "azul", "amarelo"]
+    while True:
+        try:
+            board_size = int(input("Select the number of branches (6/8/10): "))
+            if board_size in [6, 8, 10]:
+                num_colors = [num for num in range(1, board_size - 1)]  # RANGE começa em 1!!!!!!!!
+                break
+        except ValueError:
+            print("Unexpected value for board size, try again")
+            continue
+        print("Unexpected value for board size, try again")
 
     while True:
-        todas_cores = cores * 4
+        todas_cores = num_colors * 4
         random.shuffle(todas_cores)
-        ramos = [todas_cores[i * 4:(i + 1) * 4] for i in range(4)]
+        ramos = [todas_cores[i * 4:(i + 1) * 4] for i in range(board_size-2)]
         # Check that no ramo is made up of the same color
         if not any(len(set(ramo)) == 1 for ramo in ramos):
             break
 
-    positions = sorted(random.sample(range(len(ramos) + 1), 2))
-    for offset, pos in enumerate(positions):
-        ramos.insert(pos + offset, [" "] * 4)
-
     ramos = [alinhar_ramo(ramo) for ramo in ramos]
-
-    return ramos
+    ramos.insert((int(board_size/2)-1),[0] * 4)  # Tubo vazio 1
+    ramos.append([0] * 4)  # Tubo vazio 2
+    return ramos, board_size
 
 def alinhar_ramo(ramo):
     j = 0
