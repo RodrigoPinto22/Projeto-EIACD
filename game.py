@@ -21,7 +21,7 @@ class Game:
         ramos = [["" for _ in range(4)] for _ in range(n_ramos)]
         idx = 0
         for i in range(n_ramos):
-            if i >= n_ramos - 2:  # Skip the last two branches (empty branches)
+            if i >= n_ramos - 2: 
                 continue
             for j in range(4):
                 ramos[i][j] = cores[idx]
@@ -30,12 +30,12 @@ class Game:
 
     def limpar_tela(self):
         try:
-            if os.name == 'nt':  # For Windows
+            if os.name == 'nt':  
                 os.system('cls')
-            else:  # For Linux / MacOS
+            else:  
                 os.system('clear')
         except OSError:
-            print("\n" * 30)  # Print empty lines if the terminal cannot be cleared
+            print("\n" * 30) 
 
     def printar_jogo(self):
         self.limpar_tela()
@@ -73,22 +73,18 @@ class Game:
         return indice >= metade
 
     def movimento_valido(self, origem, destino, dir_orig, dir_dest):
-        # Check if the origin branch is empty
         if all(p == "" for p in origem):
             return False, 0
 
-        # Extract birds from the origin branch
         passaros, _ = self.extrair_passaros(origem, dir_orig, 4)
         if not passaros:
             return False, 0
 
         cor = passaros[0]
 
-        # Check if the destination branch is empty
         if all(p == "" for p in destino):
             espaco = 4
         else:
-            # Determine the top bird in the destination branch
             topo = None
             if dir_dest:
                 for p in destino:
@@ -100,12 +96,10 @@ class Game:
                     if p != "":
                         topo = p
                         break
-            # If the top bird is not the same color, the move is invalid
             if topo != cor:
                 return False, 0
             espaco = destino.count("")
 
-        # Check if there is enough space in the destination branch
         if espaco > 0:
             quantidade = min(len(passaros), espaco)
             return True, quantidade
