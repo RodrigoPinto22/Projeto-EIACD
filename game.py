@@ -1,57 +1,180 @@
-from collections import deque
+import random
+import os
 
-def print_jogo(jogo, board_size):
-    mid_index = int(board_size/2)
-    linha_superior = jogo[:mid_index]  # Pegamos os 3 primeiros ramos (lado esquerdo)
-    linha_inferior = jogo[mid_index:]  # Pegamos os 3 últimos ramos (lado direito)
-
-    print("-----------------------------------------")
-
-    for i in range(mid_index):  # Percorre cada "coluna" do jogo
-        print(f"{linha_superior[i][::-1]}    |    {linha_inferior[i]}")  # Mantemos as colunas corretas
+EMOJIS = {
+    "1": "🔴", "2": "🟠", "3": "🟡", "4": "🟢", "5": "🔵",
+    "6": "🟣", "7": "⚫️", "8": "⚪️", "9": "🟤", "10": "🧿",
+    "": "  "
+}
 
 
-def make_move(board_info):
-    board = board_info[0]
-    board_size = board_info[1]
-    #INDEX de 1 - 8
-    while True:
-        print_jogo(board, board_size)
+class Game:
+    def __init__(self, size):
+        self.size = size
+        self.jogo = self.gerar_estado_inicial(size)
 
-        try:
-            idx1 = int(input("Select the first branch: "))
-            idx2 = int(input("Select the second branch: "))
-            if idx1 > board_size or idx2 > board_size:
-                print("Unexpected value, try again")
+    def gerar_estado_inicial(self, n_ramos):
+        n_cores = n_ramos - 2
+        cores = [str(i + 1) for i in range(n_cores) for _ in range(4)]
+        random.shuffle(cores)
+
+        ramos = [["" for _ in range(4)] for _ in range(n_ramos)]
+        idx = 0
+        for i in range(n_ramos):
+            if i >= n_ramos - 2:  # Skip the last two branches (empty branches)
                 continue
-            check_move(idx1-1, idx2-1, board)
-        except ValueError:
-            print("Unexpected value, try again")
+            for j in range(4):
+                ramos[i][j] = cores[idx]
+                idx += 1
+        return ramos
 
+    def limpar_tela(self):
+        try:
+            if os.name == 'nt':  # For Windows
+                os.system('cls')
+            else:  # For Linux / MacOS
+                os.system('clear')
+        except OSError:
+            print("\n" * 30)  # Print empty lines if the terminal cannot be cleared
 
-def check_move(b1, b2, board):
-    print(board[0])
-    consecutive_values = get_consecutive(board[b1])
-    if board[b2][0] != 0:
-        print("Impossible Move! Try another one")
-        return
-    elif board[b2][3] == 0:
-        print(f"consec = {consecutive_values}")
-        board[b2][3] = board[b1][0]
-        board[b1][0] = 0
+    def printar_jogo(self):
+        self.limpar_tela()
+        total_ramos = len(self.jogo)
+        metade = (total_ramos + 1) // 2
+        esquerda = self.jogo[:metade]
+        direita = self.jogo[metade:]
 
-    return b1, b2
+        linhas = max(len(esquerda), len(direita))
+        print()
+        for i in range(linhas):
+            if i < len(esquerda):
+                ramo_esq = esquerda[i]
+                num_esq = f"{i + 1:>2} |"
+                emj_esq = ''.join(f" {EMOJIS[c]}" for c in ramo_esq)
+            else:
+                num_esq = "   |"
+                emj_esq = " 🪹 🪹 🪹 🪹 "
 
-def get_consecutive(arr):
-    i = 0
-    while arr[i] == 0:
-        i +=1
-    if arr[i] == arr[i+1]:
-        if arr[i] == arr[i+2]:
-            return 2
-        return 1
-    return 0
+            if i < len(direita):
+                ramo_dir = direita[i]
+                num_dir = f"| {metade + i + 1:<2}"
+                emj_dir = ''.join(f" {EMOJIS[c]}" for c in ramo_dir)
+            else:
+                num_dir = ""
+                emj_dir = ""
 
+            if emj_dir:
+                print(f"{num_esq}{emj_esq}      {emj_dir} {num_dir}")
+            else:
+                print(f"{num_esq}{emj_esq}")
 
+    def ramo_direita(self, indice):
+        metade = (self.size + 1) // 2
+        return indice >= metade
 
+    def movimento_valido(self, origem, destino, dir_orig, dir_dest):
+        # Check if the origin branch is empty
+        if all(p == "" for p in origem):
+            return False, 0
 
+        # Extract birds from the origin branch
+        passaros, _ = self.extrair_passaros(origem, dir_orig, 4)
+        if not passaros:
+            return False, 0
+
+        cor = passaros[0]
+
+        # Check if the destination branch is empty
+        if all(p == "" for p in destino):
+            espaco = 4
+        else:
+            # Determine the top bird in the destination branch
+            topo = None
+            if dir_dest:
+                for p in destino:
+                    if p != "":
+                        topo = p
+                        break
+            else:
+                for p in reversed(destino):
+                    if p != "":
+                        topo = p
+                        break
+            # If the top bird is not the same color, the move is invalid
+            if topo != cor:
+                return False, 0
+            espaco = destino.count("")
+
+        # Check if there is enough space in the destination branch
+        if espaco > 0:
+            quantidade = min(len(passaros), espaco)
+            return True, quantidade
+        return False, 0
+
+    def extrair_passaros(self, ramo, direita, quantidade):
+        novos = ramo[:]
+        passaros = []
+
+        if direita:
+            lado = 0
+            while lado < 4 and ramo[lado] == "":
+                lado += 1
+            if lado == 4:
+                return [], ramo
+
+            cor = ramo[lado]
+            count = 1
+            while lado + count < 4 and ramo[lado + count] == cor:
+                count += 1
+            count = min(count, quantidade)
+            passaros = [cor] * count
+            for i in range(count):
+                novos[lado + i] = ""
+        else:
+            lado = 3
+            while lado >= 0 and ramo[lado] == "":
+                lado -= 1
+            if lado == -1:
+                return [], ramo
+
+            cor = ramo[lado]
+            count = 1
+            while lado - count >= 0 and ramo[lado - count] == cor:
+                count += 1
+            count = min(count, quantidade)
+            passaros = [cor] * count
+            for i in range(count):
+                novos[lado - i] = ""
+
+        return passaros, novos
+
+    def inserir_passaros(self, ramo, passaros, direita):
+        novos = ramo[:]
+
+        if direita:
+            lado = 3
+            while lado >= 0 and novos[lado] != "":
+                lado -= 1
+            for p in reversed(passaros):
+                if lado < 0:
+                    break
+                novos[lado] = p
+                lado -= 1
+        else:
+            lado = 0
+            while lado < 4 and novos[lado] != "":
+                lado += 1
+            for p in passaros:
+                if lado >= 4:
+                    break
+                novos[lado] = p
+                lado += 1
+
+        return novos
+
+    def jogo_finalizado(self):
+        for ramo in self.jogo:
+            cores = set(p for p in ramo if p != "")
+            if len(cores) > 1 or ramo.count("") not in [0, 4]:
+                return False
+        return True
