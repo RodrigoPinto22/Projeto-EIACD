@@ -1,0 +1,46 @@
+BIRD SORT PUZZLE BENCHMARK RESULTS
+Date: 2025-04-06 19:01:51
+Number of trials per algorithm: 3
+
+Configuration:
+--------------------
+Size 4: timeout = 10 seconds
+Size 6: timeout = 20 seconds
+Size 8: timeout = 30 seconds
+
+
+==================== Size 4 ====================
+=== BENCHMARK RESULTS ===
+Algorithm       Avg Time (s) Std Time     Avg Moves    Std Moves    Success % 
+-------------------------------------------------------------------------
+BFS             0.008        0.006        3.5          0.7          66.7      
+DFS             0.003        0.001        6.0          1.7          100.0     
+IDDFS           0.179        0.220        5.0          1.4          66.7      
+UCS             0.021        0.000        4.0          0.0          100.0     
+Greedy BFS      0.004        0.000        6.3          0.6          100.0     
+A*              0.005        0.002        5.3          2.1          100.0     
+Weighted A*     0.006        0.001        5.0          1.4          66.7      
+
+==================== Size 6 ====================
+=== BENCHMARK RESULTS ===
+Algorithm       Avg Time (s) Std Time     Avg Moves    Std Moves    Success % 
+-------------------------------------------------------------------------
+BFS             3.890        1.773        10.7         1.5          100.0     
+DFS             0.039        0.018        24.0         12.3         100.0     
+IDDFS           inf          0.000        inf          0.0          0.0       
+UCS             7.551        2.612        11.0         1.0          100.0     
+Greedy BFS      0.057        0.005        12.0         0.0          100.0     
+A*              0.036        0.005        12.7         2.1          100.0     
+Weighted A*     0.042        0.014        13.7         1.5          100.0     
+
+==================== Size 8 ====================
+=== BENCHMARK RESULTS ===
+Algorithm       Avg Time (s) Std Time     Avg Moves    Std Moves    Success % 
+-------------------------------------------------------------------------
+BFS             inf          0.000        inf          0.0          0.0       
+DFS             0.922        1.164        112.5        122.3        66.7      
+IDDFS           inf          0.000        inf          0.0          0.0       
+UCS             inf          0.000        inf          0.0          0.0       
+Greedy BFS      0.627        0.912        22.7         2.3          100.0     
+A*              0.236        0.073        19.7         0.6          100.0     
+Weighted A*     0.211        0.149        18.0         2.6          100.0     
