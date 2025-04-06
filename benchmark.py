@@ -1,6 +1,8 @@
 import time
 import signal
 from statistics import mean, stdev
+from datetime import datetime
+from pathlib import Path
 from game import Game
 from algorithms import GameSolver
 
@@ -93,15 +95,58 @@ def run_benchmark(size, num_trials=5, timeout_seconds=30):
     
     return results
 
-def print_results(size_results):
-    """Print benchmark results in a formatted table."""
-    print("\n=== BENCHMARK RESULTS ===")
-    print(f"{'Algorithm':<15} {'Avg Time (s)':<12} {'Std Time':<12} {'Avg Moves':<12} {'Std Moves':<12} {'Success %':<10}")
-    print("-" * 73)
+def format_results(size_results):
+    """Format benchmark results as a string table."""
+    lines = []
+    lines.append("=== BENCHMARK RESULTS ===")
+    header = f"{'Algorithm':<15} {'Avg Time (s)':<12} {'Std Time':<12} {'Avg Moves':<12} {'Std Moves':<12} {'Success %':<10}"
+    lines.append(header)
+    lines.append("-" * 73)
     
     for algo, stats in size_results.items():
-        print(f"{algo:<15} {stats['average_time']:<12.3f} {stats['std_time']:<12.3f} "
-              f"{stats['average_moves']:<12.1f} {stats['std_moves']:<12.1f} {stats['success_rate']:<10.1f}")
+        line = (f"{algo:<15} {stats['average_time']:<12.3f} {stats['std_time']:<12.3f} "
+                f"{stats['average_moves']:<12.1f} {stats['std_moves']:<12.1f} {stats['success_rate']:<10.1f}")
+        lines.append(line)
+    
+    return "\n".join(lines)
+
+def save_results(all_results, sizes, trials, timeouts):
+    """Save benchmark results to a file.
+    
+    Args:
+        all_results (dict): Results for each size
+        sizes (list): List of tested sizes
+        trials (int): Number of trials per algorithm
+        timeouts (dict): Timeout settings for each size
+    """
+    # Create results directory if it doesn't exist
+    results_dir = Path("benchmark_results")
+    results_dir.mkdir(exist_ok=True)
+    
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = results_dir / f"benchmark_{timestamp}.txt"
+    
+    with open(filename, 'w') as f:
+        # Write header
+        f.write("BIRD SORT PUZZLE BENCHMARK RESULTS\n")
+        f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Number of trials per algorithm: {trials}\n\n")
+        
+        # Write configuration
+        f.write("Configuration:\n")
+        f.write("-" * 20 + "\n")
+        for size in sizes:
+            f.write(f"Size {size}: timeout = {timeouts[size]} seconds\n")
+        f.write("\n")
+        
+        # Write results for each size
+        for size in sizes:
+            f.write(f"\n{'='*20} Size {size} {'='*20}\n")
+            f.write(format_results(all_results[size]))
+            f.write("\n")
+        
+    print(f"\nResults saved to: {filename}")
 
 def main():
     # Using smaller sizes and fewer trials for quicker testing
@@ -115,10 +160,15 @@ def main():
         8: 30    # 30 seconds for size 8
     }
     
+    all_results = {}
     for size in sizes:
         print(f"\n{'='*20} Testing Size {size} {'='*20}")
         results = run_benchmark(size, trials, timeouts[size])
-        print_results(results)
+        print(format_results(results))
+        all_results[size] = results
+    
+    # Save all results to file
+    save_results(all_results, sizes, trials, timeouts)
 
 if __name__ == "__main__":
     main()
