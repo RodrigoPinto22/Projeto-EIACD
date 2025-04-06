@@ -1,0 +1,149 @@
+from game import (
+    gerar_estado_inicial, printar_jogo, ramo_direita,
+    movimento_valido, extrair_passaros, inserir_passaros, jogo_finalizado
+)
+from solver import resolver, weighted_a_star
+from uninformed import bfs, dfs, uniform_cost, ids
+
+def executar_solucao(jogo, caminho):
+    n = len(jogo)
+    for i, (orig, dest) in enumerate(caminho, 1):
+        dir_orig = ramo_direita(orig-1, n)
+        dir_dest = ramo_direita(dest-1, n)
+        valido, qtd = movimento_valido(jogo[orig-1], jogo[dest-1], dir_orig, dir_dest)
+        passaros, jogo[orig-1] = extrair_passaros(jogo[orig-1], dir_orig, qtd)
+        jogo[dest-1] = inserir_passaros(jogo[dest-1], passaros, dir_dest)
+        printar_jogo(jogo)
+        print(f"{i}. {orig} -> {dest}")
+        input()
+
+def resolver_com_algoritmo(funcao):
+    n = int(input("Quantidade de ramos (4 a 12): "))
+    jogo = gerar_estado_inicial(n)
+    printar_jogo(jogo)
+    input("Pressione Enter para resolver...")
+    caminho = funcao(jogo)
+    if caminho:
+        executar_solucao(jogo, caminho)
+    else:
+        print("Não foi possível resolver.")
+
+def jogar_manual():
+    n = int(input("Quantidade de ramos (4 a 12): "))
+    jogo = gerar_estado_inicial(n)
+
+    while True:
+        printar_jogo(jogo)
+        if jogo_finalizado(jogo):
+            print("Jogo finalizado.")
+            break
+
+        mov = input("Movimento (origem destino) ou sair: ").strip().lower()
+        if mov == "sair":
+            break
+        else:
+            try:
+                orig, dest = map(int, mov.split())
+                dir_o = ramo_direita(orig-1, n)
+                dir_d = ramo_direita(dest-1, n)
+                valido, qtd = movimento_valido(jogo[orig-1], jogo[dest-1], dir_o, dir_d)
+                if not valido:
+                    print("Movimento inválido.")
+                    input()
+                    continue
+                passaros, jogo[orig-1] = extrair_passaros(jogo[orig-1], dir_o, qtd)
+                jogo[dest-1] = inserir_passaros(jogo[dest-1], passaros, dir_d)
+            except:
+                print("Entrada inválida.")
+                input()
+
+def jogar_com_dicas():
+    n = int(input("Quantidade de ramos (4 a 12): "))
+    jogo = gerar_estado_inicial(n)
+    historico = []
+
+    while True:
+        printar_jogo(jogo)
+        if jogo_finalizado(jogo):
+            print("Jogo finalizado.")
+            break
+
+        mov = input("Movimento (origem destino), hint, undo ou sair: ").strip().lower()
+        if mov == "sair":
+            break
+        elif mov == "hint":
+            caminho = resolver(jogo, metodo='astar')
+            if caminho:
+                print(f"Sugestão: {caminho[0][0]} -> {caminho[0][1]}")
+            else:
+                print("Nenhuma dica disponível.")
+            input()
+        elif mov == "undo":
+            if historico:
+                jogo = historico.pop()
+            else:
+                print("Nenhum movimento para desfazer.")
+                input()
+        else:
+            try:
+                orig, dest = map(int, mov.split())
+                dir_o = ramo_direita(orig-1, n)
+                dir_d = ramo_direita(dest-1, n)
+                valido, qtd = movimento_valido(jogo[orig-1], jogo[dest-1], dir_o, dir_d)
+                if not valido:
+                    print("Movimento inválido.")
+                    input()
+                    continue
+                from copy import deepcopy
+                historico.append(deepcopy(jogo))
+                passaros, jogo[orig-1] = extrair_passaros(jogo[orig-1], dir_o, qtd)
+                jogo[dest-1] = inserir_passaros(jogo[dest-1], passaros, dir_d)
+            except:
+                print("Entrada inválida.")
+                input()
+
+def menu_resolucao():
+    print("Escolha o algoritmo:")
+    print("1 - A*")
+    print("2 - Greedy")
+    print("3 - Weighted A*")
+    print("4 - BFS")
+    print("5 - DFS")
+    print("6 - UCS")
+    print("7 - Iterative Deepening")
+    op = input("Opção: ").strip()
+    if op == "1":
+        resolver_com_algoritmo(lambda j: resolver(j, metodo='astar'))
+    elif op == "2":
+        resolver_com_algoritmo(lambda j: resolver(j, metodo='greedy'))
+    elif op == "3":
+        resolver_com_algoritmo(lambda j: weighted_a_star(j, w=1.5))
+    elif op == "4":
+        resolver_com_algoritmo(bfs)
+    elif op == "5":
+        resolver_com_algoritmo(dfs)
+    elif op == "6":
+        resolver_com_algoritmo(uniform_cost)
+    elif op == "7":
+        resolver_com_algoritmo(ids)
+    else:
+        print("Opção inválida.")
+        input()
+
+if __name__ == "__main__":
+    while True:
+        print("1 - Jogar manualmente")
+        print("2 - Jogar com dicas (hint e undo)")
+        print("3 - Resolver com algoritmos")
+        print("0 - Sair")
+        escolha = input("Escolha: ").strip()
+        if escolha == "1":
+            jogar_manual()
+        elif escolha == "2":
+            jogar_com_dicas()
+        elif escolha == "3":
+            menu_resolucao()
+        elif escolha == "0":
+            break
+        else:
+            print("Opção inválida.")
