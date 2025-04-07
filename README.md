@@ -6,12 +6,13 @@ Bird Sort Puzzle é um jogo de puzzle onde o objetivo é organizar pássaros col
 ## Como Executar
 Para executar o projeto, execute o seguinte comando no terminal: python3 main.py
 
+### Escolher um dos seguintes Modos de Jogo
+1. **Modo Manual**: Jogar manualmente
+2. **Jogar com dicas** (hint e undo)
+3. **Modo Automático**: Resolvido por um algoritmo
+
 ### Tamanho do Tabuleiro
 - Pode escolher entre diferentes tamanhos (4 a 12 ramos)
-
-### Modos de Jogo
-1. **Modo Manual**: Jogar manualmente
-2. **Modo Automático**: Resolvido por um algoritmo
 
 ## Instruções do Jogo Manual
 ### Objetivo
