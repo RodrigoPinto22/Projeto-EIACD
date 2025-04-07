@@ -108,8 +108,10 @@ Para executar o projeto executar o seguinte comando no terminal: python3 benchma
 ## Estrutura do Projeto
 ```
 .
-├── main.py         # Ponto de entrada do programa
-├── game.py        # Implementação do jogo
-├── algorithms.py  # Algoritmos de resolução
-└── benchmark.py   # Script de benchmark (opcional)
+├── main.py          # Ponto de entrada do programa
+├── game.py          # Implementação do jogo
+├── solver.py        # Algoritmos de resolução não informados
+└── uninformed.py    # Algoritmos de resolução informados
+└── benchmark.py     # Script de benchmark (opcional)
+└── benchmark.txt    # Resultados do benchmark.py
 ```
