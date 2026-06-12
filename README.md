@@ -1,117 +1,159 @@
-# Projeto-EIACD
+# EIACD Project
 
-## Sobre o Projeto
-Bird Sort Puzzle é um jogo de puzzle onde o objetivo é organizar pássaros coloridos em ramos, agrupando-os por cores. O projeto implementa tanto um modo de jogo manual como vários algoritmos de pesquisa para resolução automática.
+## About the Project
 
-## Como Executar
-Para executar o projeto, execute o seguinte comando no terminal: python3 main.py
+Bird Sort Puzzle is a puzzle game where the objective is to organize colored birds on branches by grouping birds of the same color together. The project implements both a manual gameplay mode and several search algorithms for automatic solving.
 
-### Escolher um dos seguintes Modos de Jogo
-1. **Modo Manual**: Jogar manualmente
-2. **Jogar com dicas** (hint e undo)
-3. **Modo Automático**: Resolvido por um algoritmo
+## How to Run
 
-### Tamanho do Tabuleiro
-- Pode escolher entre diferentes tamanhos (4 a 12 ramos)
+To run the project, execute the following command in the terminal:
 
-## Instruções do Jogo Manual
-### Objetivo
-- Agrupar todos os pássaros da mesma cor no mesmo ramo
-- Cada ramo pode ter no máximo 4 pássaros
+```bash
+python3 main.py
+```
 
-### Como Jogar
-1. Digite o número do ramo de origem
-2. Digite o número do ramo de destino
-3. O jogo irá mover automaticamente o máximo de pássaros possível
+### Choose One of the Following Game Modes
 
-### Regras de Movimento
-- Só é possível mover pássaros da mesma cor
-- Movimentos seguem direções específicas:
-  - **Ramos da Esquerda**:
-    - Extração: direita → esquerda
-    - Inserção: esquerda → direita
-  - **Ramos da Direita**:
-    - Extração: esquerda → direita
-    - Inserção: direita → esquerda
+1. **Manual Mode**: Play the game manually
+2. **Play with Hints** (hint and undo)
+3. **Automatic Mode**: Solved by an algorithm
 
-## Modo Automático
-### Algoritmos Disponíveis
-1. **BFS** (Breadth-First Search)
-   - Encontra a solução mais curta
-   - Mais lento em puzzles grandes
+### Board Size
 
-2. **DFS** (Depth-First Search)
-   - Rápido em encontrar uma solução
-   - Pode não ser a solução mais curta
+* You can choose between different board sizes (4 to 12 branches)
 
-3. **IDDFS** (Iterative Deepening DFS)
-   - Combina eficiência do DFS com otimalidade do BFS
-   - Bom equilíbrio entre memória e qualidade
+## Manual Game Instructions
 
-4. **UCS** (Uniform Cost Search)
-   - Similar ao BFS neste puzzle
-   - Todos os movimentos têm custo igual
+### Objective
+
+* Group all birds of the same color on the same branch
+* Each branch can hold a maximum of 4 birds
+
+### How to Play
+
+1. Enter the source branch number
+2. Enter the destination branch number
+3. The game will automatically move the maximum number of birds possible
+
+### Movement Rules
+
+* Only birds of the same color can be moved together
+* Moves follow specific directions:
+
+  * **Left Branches**:
+
+    * Removal: right → left
+    * Insertion: left → right
+  * **Right Branches**:
+
+    * Removal: left → right
+    * Insertion: right → left
+
+## Automatic Mode
+
+### Available Algorithms
+
+1. **BFS (Breadth-First Search)**
+
+   * Finds the shortest solution
+   * Slower on larger puzzles
+
+2. **DFS (Depth-First Search)**
+
+   * Quickly finds a solution
+   * May not find the shortest solution
+
+3. **IDDFS (Iterative Deepening DFS)**
+
+   * Combines the efficiency of DFS with the optimality of BFS
+   * Good balance between memory usage and solution quality
+
+4. **UCS (Uniform Cost Search)**
+
+   * Similar to BFS for this puzzle
+   * All moves have equal cost
 
 5. **Greedy BFS**
-   - Muito rápido
-   - Soluções podem ser subótimas
+
+   * Very fast
+   * Solutions may be suboptimal
 
 6. **A***
-   - Equilibra velocidade e qualidade
-   - Usa heurísticas inteligentes
 
-7. **Weighted A*** (W=1.5)
-   - Mais rápido que A*
-   - Sacrifica um pouco da qualidade
+   * Balances speed and solution quality
+   * Uses intelligent heuristics
 
-## Condições de Vitória
-- Todos os pássaros da mesma cor agrupados no mesmo ramo
-- Ramos devem estar ou completamente cheios (4 pássaros) ou vazios
+7. **Weighted A* (W = 1.5)**
 
-## Modificações Possíveis
-1. Alterar tamanho do puzzle (4-12 ramos)
-2. Escolher diferentes algoritmos de resolução
-3. Ajustar parâmetros dos algoritmos (ex: peso do Weighted A*)
+   * Faster than A*
+   * Sacrifices some solution quality for speed
 
-## Análise de Desempenho (benchmark.py)
-O projeto inclui uma ferramenta de análise de desempenho que permite comparar a eficiência dos diferentes algoritmos:
+## Victory Conditions
 
-### Como Executar
-Para executar o projeto executar o seguinte comando no terminal: python3 benchmark.py
+* All birds of the same color must be grouped on the same branch
+* Branches must be either completely full (4 birds) or empty
 
+## Possible Modifications
 
-### Funcionalidades
-- Executa cada algoritmo múltiplas vezes para diferentes tamanhos de puzzle
-- Mede e regista:
-  - Tempo médio de execução
-  - Desvio padrão do tempo
-  - Número médio de movimentos
-  - Desvio padrão dos movimentos
-  - Taxa de sucesso
+1. Change the puzzle size (4–12 branches)
+2. Select different solving algorithms
+3. Adjust algorithm parameters (e.g., the weight used in Weighted A*)
 
-### Configurações Predefinidas
-- Tamanhos de puzzle testados: 4, 6 e 8 ramos
-- 3 tentativas por algoritmo
-- Tempos limite:
-  - Tamanho 4: 10 segundos
-  - Tamanho 6: 20 segundos
-  - Tamanho 8: 30 segundos
+## Performance Analysis (benchmark.py)
 
-### Resultados
-- Os resultados são guardados na pasta `benchmark_results`
-- Cada ficheiro de resultados inclui:
-  - Data e hora da execução
-  - Configurações utilizadas
-  - Resultados detalhados para cada tamanho
-- Nome do ficheiro: `benchmark_AAAAMMDD_HHMMSS.txt`
+The project includes a performance analysis tool that allows comparison of the efficiency of different algorithms.
 
-## Estrutura do Projeto
+### How to Run
+
+To execute the benchmark, run the following command in the terminal:
+
+```bash
+python3 benchmark.py
 ```
+
+### Features
+
+* Runs each algorithm multiple times on different puzzle sizes
+* Measures and records:
+
+  * Average execution time
+  * Standard deviation of execution time
+  * Average number of moves
+  * Standard deviation of moves
+  * Success rate
+
+### Default Settings
+
+* Puzzle sizes tested: 4, 6, and 8 branches
+* 3 runs per algorithm
+* Time limits:
+
+  * Size 4: 10 seconds
+  * Size 6: 20 seconds
+  * Size 8: 30 seconds
+
+### Results
+
+* Results are stored in the `benchmark_results` folder
+* Each results file includes:
+
+  * Date and time of execution
+  * Configuration used
+  * Detailed results for each puzzle size
+* File naming format:
+
+```text
+benchmark_YYYYMMDD_HHMMSS.txt
+```
+
+## Project Structure
+
+```text
 .
-├── main.py          # Ponto de entrada do programa
-├── game.py          # Implementação do jogo
-├── solver.py        # Algoritmos de resolução não informados
-└── uninformed.py    # Algoritmos de resolução informados
-└── benchmark.py     # Script de benchmark (opcional)
-└── benchmark.txt    # Resultados do benchmark.py
+├── main.py          # Program entry point
+├── game.py          # Game implementation
+├── solver.py        # Uninformed search algorithms
+├── uninformed.py    # Informed search algorithms
+├── benchmark.py     # Benchmark script (optional)
+└── benchmark.txt    # Benchmark results
 ```
