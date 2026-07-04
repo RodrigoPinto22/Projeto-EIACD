@@ -11,13 +11,6 @@ To run the project, execute the following command in the terminal:
 ```bash
 python3 main.py
 ```
-
-### Choose One of the Following Game Modes
-
-1. **Manual Mode**: Play the game manually
-2. **Play with Hints** (hint and undo)
-3. **Automatic Mode**: Solved by an algorithm
-
 ### Board Size
 
 * You can choose between different board sizes (4 to 12 branches)
