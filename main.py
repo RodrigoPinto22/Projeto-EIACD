@@ -6,9 +6,9 @@ from copy import deepcopy
 def play_human_mode(jogo):
     """Handle human player game mode"""
     while True:
-        jogo.printar_jogo()
+        jogo.display_game()
 
-        if jogo.jogo_finalizado():
+        if jogo.is_game_solved():
             print("\n🎉 Parabéns! Você finalizou o jogo! 🎉")
             break
 
@@ -20,10 +20,10 @@ def play_human_mode(jogo):
             if orig < 1 or orig > jogo.size or dest < 1 or dest > jogo.size:
                 raise ValueError("Os números devem estar entre 1 e o número de ramos.")
 
-            dir_orig = jogo.ramo_direita(orig - 1)
-            dir_dest = jogo.ramo_direita(dest - 1)
+            dir_orig = jogo.is_right_branch(orig - 1)
+            dir_dest = jogo.is_right_branch(dest - 1)
 
-            valido, quantidade = jogo.movimento_valido(
+            valido, quantidade = jogo.is_valid_move(
                 jogo.jogo[orig - 1], jogo.jogo[dest - 1], dir_orig, dir_dest
             )
             if not valido:
@@ -31,11 +31,11 @@ def play_human_mode(jogo):
                 input("Pressione Enter para continuar...")
                 continue
 
-            passaros, novo_origem = jogo.extrair_passaros(
+            passaros, novo_origem = jogo.extract_birds(
                 jogo.jogo[orig - 1], dir_orig, quantidade
             )
             jogo.jogo[orig - 1] = novo_origem
-            jogo.jogo[dest - 1] = jogo.inserir_passaros(
+            jogo.jogo[dest - 1] = jogo.insert_birds(
                 jogo.jogo[dest - 1], passaros, dir_dest
             )
 
@@ -116,38 +116,38 @@ def play_algorithm_mode(jogo):
         
         # Show initial state
         print("\nEstado Inicial:")
-        jogo.printar_jogo()
+        jogo.display_game()
         time.sleep(1)
-        
+
         # Execute and show each move
         for i, (orig, dest) in enumerate(solution, 1):
             print(f"\nPasso {i}: Mover do ramo {orig} para o ramo {dest}")
-            
+
             # Create a temporary copy to apply the move without changing the original solver state
             temp_game = deepcopy(jogo)
             temp_game.jogo = deepcopy(jogo.jogo) # Ensure jogo state is also copied
-            
-            dir_orig = temp_game.ramo_direita(orig - 1)
-            dir_dest = temp_game.ramo_direita(dest - 1)
-            
-            valido, quantidade = temp_game.movimento_valido(
+
+            dir_orig = temp_game.is_right_branch(orig - 1)
+            dir_dest = temp_game.is_right_branch(dest - 1)
+
+            valido, quantidade = temp_game.is_valid_move(
                 temp_game.jogo[orig - 1], temp_game.jogo[dest - 1], dir_orig, dir_dest
             )
-            
+
             # Apply move to the main game instance (jogo) for display
             if valido:
-                passaros, novo_origem = jogo.extrair_passaros(
+                passaros, novo_origem = jogo.extract_birds(
                     jogo.jogo[orig - 1], dir_orig, quantidade
                 )
                 jogo.jogo[orig - 1] = novo_origem
-                jogo.jogo[dest - 1] = jogo.inserir_passaros(
+                jogo.jogo[dest - 1] = jogo.insert_birds(
                     jogo.jogo[dest - 1], passaros, dir_dest
                 )
             else:
                 print(f"Erro: Movimento inválido encontrado na solução {orig}->{dest}. Abortando.")
                 break # Should not happen if solver is correct
-            
-            jogo.printar_jogo()
+
+            jogo.display_game()
             time.sleep(1)  # Pause between moves
             input("Pressione Enter para o próximo movimento...")
         
@@ -165,16 +165,17 @@ def main():
             pass
         print("Entrada inválida! Por favor, insira um número entre 4 e 12.")
 
-    while True:
-        try:
-            mode = int(input("Escolha o modo (0 - Jogar, 1 - Resolver automático): "))
-            if mode in [0, 1]:
-                break
-        except ValueError:
-            pass
-        print("Entrada inválida! Por favor, digite 0 ou 1.")
+    #while True:
+      #  try:
+     #       mode = int(input("Escolha o modo (0 - Jogar, 1 - Resolver automático): "))
+    #        if mode in [0, 1]:
+   #             break
+  #      except ValueError:
+ #           pass
+#        print("Entrada inválida! Por favor, digite 0 ou 1.")
 
     jogo = Game(n)
+    mode = 1
     
     if mode == 0:
         play_human_mode(jogo)
