@@ -133,8 +133,8 @@ class GameSolver:
         # Initialize search
         game_copy = deepcopy(self.game)
         initial_state = deepcopy(self.game.jogo)
-        
-        # Queue stores (state, moves_to_reach_state)
+
+        # Queue stores (depth, state, moves_to_reach_state)
         queue = deque([(initial_state, [])])
         
         # Track visited states to prevent cycles
@@ -209,27 +209,28 @@ class GameSolver:
         initial_state = deepcopy(self.game.jogo)
         initial_state_tuple = state_to_tuple(initial_state)
         
-        # Priority queue stores: (total_cost, path_to_state, state)
-        # Since all moves cost 1, total_cost equals number of moves
-        pq = [(0, [], initial_state)]
-        
+        # Priority queue stores: (total_cost, counter, path_to_state, state)
+        # counter breaks ties to avoid comparing lists
+        counter = 0
+        pq = [(0, counter, [], initial_state)]
+
         # Track minimum cost to reach each state
         # This allows us to skip states if we find a cheaper path later
         visited = {initial_state_tuple: 0}
-    
+
         while pq:
-            cost, path, current_state = heappop(pq)
+            cost, _, path, current_state = heappop(pq)
             current_state_tuple = state_to_tuple(current_state)
 
             # Skip if we've found a better path to this state
             if cost > visited.get(current_state_tuple, float('inf')):
                 continue
-            
+
             # Check if current state is a solution
             game_copy.jogo = deepcopy(current_state)
             if game_copy.is_game_solved():
                 return path
-                
+
             # Stop exploring if we've reached max depth
             if cost >= max_depth:
                 continue
@@ -239,19 +240,20 @@ class GameSolver:
                 for dest in range(len(current_state)):
                     if source == dest:  # Can't move to same branch
                         continue
-    
+
                     # Try to make the move
                     new_state, valid, _ = self._try_move(current_state, source, dest)
-                    
+
                     if valid:
                         new_state_tuple = state_to_tuple(new_state)
                         new_cost = cost + 1  # Each move costs 1
-                        
+
                         # Only consider this new state if it's cheaper than known paths
                         if new_cost < visited.get(new_state_tuple, float('inf')):
                            visited[new_state_tuple] = new_cost
                            new_path = path + [(source + 1, dest + 1)]
-                           heappush(pq, (new_cost, new_path, new_state))
+                           counter += 1
+                           heappush(pq, (new_cost, counter, new_path, new_state))
     
         # No solution found within depth/cost limit
         return None
@@ -283,23 +285,28 @@ class GameSolver:
         initial_state_tuple = state_to_tuple(initial_state)
 
         # Priority queue ordered by f-score (g + h)
-        # Format: (f_score, path_to_state, state)
+        # Format: (f_score, counter, path_to_state, state); counter breaks ties
+        counter = 0
         initial_h = self._heuristic(initial_state)
-        pq = [(initial_h, [], initial_state)]  # g=0 initially
-        
+        pq = [(initial_h, counter, [], initial_state)]  # g=0 initially
+
         # Track actual cost (g-score) to reach each state
         g_scores = {initial_state_tuple: 0}
-        
+
         while pq:
-            f_score, path, current_state = heappop(pq)
+            f_score, _, path, current_state = heappop(pq)
             current_state_tuple = state_to_tuple(current_state)
-            current_g = g_scores[current_state_tuple]
-            
+            current_g = g_scores.get(current_state_tuple, float('inf'))
+
+            # Skip stale entries (a better path was already found)
+            if len(path) > current_g:
+                continue
+
             # Check if current state is a solution
             game_copy.jogo = deepcopy(current_state)
             if game_copy.is_game_solved():
                 return path
-                
+
             # Stop if we've exceeded max depth
             if current_g >= max_depth:
                 continue
@@ -316,17 +323,18 @@ class GameSolver:
                     if valid:
                         new_state_tuple = state_to_tuple(new_state)
                         tentative_g = current_g + 1  # Cost of one more move
-                        
+
                         # Only consider if this is a shorter path
                         if tentative_g < g_scores.get(new_state_tuple, float('inf')):
                             # Update g-score and calculate f-score
                             g_scores[new_state_tuple] = tentative_g
                             h_score = self._heuristic(new_state)
-                            f_score = tentative_g + h_score
-                            
+                            new_f = tentative_g + h_score
+
                             # Add to queue with updated path
                             new_path = path + [(source + 1, dest + 1)]
-                            heappush(pq, (f_score, new_path, new_state))
+                            counter += 1
+                            heappush(pq, (new_f, counter, new_path, new_state))
                             
         # No solution found within depth limit
         return None
@@ -354,23 +362,28 @@ class GameSolver:
         initial_state = deepcopy(self.game.jogo)
         initial_state_tuple = state_to_tuple(initial_state)
 
-        # Priority queue stores: (priority, cost, path, state)
-        # priority = cost + weight * heuristic
+        # Priority queue stores: (priority, counter, cost, path, state)
+        # priority = cost + weight * heuristic; counter breaks ties
+        counter = 0
         initial_h = self._heuristic(initial_state)
-        pq = [(weight * initial_h, 0, [], initial_state)]  # Initial priority uses 0 cost
-        
+        pq = [(weight * initial_h, counter, 0, [], initial_state)]
+
         # Track actual cost (g-score) to reach each state
         g_scores = {initial_state_tuple: 0}
-        
+
         while pq:
-            _, cost, path, current_state = heappop(pq)
+            _, _, cost, path, current_state = heappop(pq)
             current_state_tuple = state_to_tuple(current_state)
-            
+
+            # Skip stale entries
+            if cost > g_scores.get(current_state_tuple, float('inf')):
+                continue
+
             # Check if current state is a solution
             game_copy.jogo = deepcopy(current_state)
             if game_copy.is_game_solved():
                 return path
-                
+
             # Stop if we've exceeded max depth
             if cost >= max_depth:
                 continue
@@ -387,17 +400,18 @@ class GameSolver:
                     if valid:
                         new_state_tuple = state_to_tuple(new_state)
                         new_cost = cost + 1  # Cost of one more move
-                        
+
                         # Only consider if this is a shorter path
                         if new_cost < g_scores.get(new_state_tuple, float('inf')):
                             # Update g-score and calculate priority
                             g_scores[new_state_tuple] = new_cost
                             h_score = self._heuristic(new_state)
                             priority = new_cost + weight * h_score
-                            
+
                             # Add to queue with updated path
                             new_path = path + [(source + 1, dest + 1)]
-                            heappush(pq, (priority, new_cost, new_path, new_state))
+                            counter += 1
+                            heappush(pq, (priority, counter, new_cost, new_path, new_state))
                             
         # No solution found within depth limit
         return None
@@ -425,20 +439,21 @@ class GameSolver:
         game_copy.jogo = deepcopy(state)
         
         for i, branch in enumerate(state):
-            dir_i = game_copy.is_right_branch(i)
-            
-            # Count birds that don't match their neighbors
-            for j in range(len(branch)):
+            birds = [b for b in branch if b != ""]
+            non_empty = len(birds)
+
+            # Count birds that don't match their neighbors (only among actual birds)
+            for j in range(len(birds)):
                 # Check if bird matches previous bird
-                if j > 0 and branch[j] != branch[j-1]:
+                if j > 0 and birds[j] != birds[j-1]:
                     misplaced += 1
                 # Check if bird matches next bird
-                if j < len(branch)-1 and branch[j] != branch[j+1]:
+                if j < len(birds)-1 and birds[j] != birds[j+1]:
                     misplaced += 1
-                    
+
             # Penalize branches that are neither empty nor full
             # These will require at least one move to fix
-            if 0 < len(branch) < 4:
+            if 0 < non_empty < 4:
                 misplaced += 1
                 
         return misplaced
@@ -517,13 +532,15 @@ class GameSolver:
         """
         score = 0
         for branch in state:
+            birds = [b for b in branch if b != ""]
             # Award points for adjacent matching birds
-            for i in range(len(branch) - 1):
-                if branch[i] == branch[i + 1]:
+            for i in range(len(birds) - 1):
+                if birds[i] == birds[i + 1]:
                     score += 1
-                    
-            # Award points for perfectly balanced branches
-            if len(branch) == 0 or len(branch) == 4:
+
+            # Award points for perfectly balanced branches (empty or full)
+            non_empty = len(birds)
+            if non_empty == 0 or non_empty == 4:
                 score += 1
                 
         return score
@@ -689,22 +706,23 @@ class GameSolver:
         initial_state_tuple = state_to_tuple(initial_state)
 
         # Priority queue ordered by heuristic value only
-        # Format: (heuristic_value, path_to_state, state)
+        # Format: (heuristic_value, counter, path_to_state, state); counter breaks ties
+        counter = 0
         initial_heuristic = self._heuristic(initial_state)
-        pq = [(initial_heuristic, [], initial_state)]
-        
+        pq = [(initial_heuristic, counter, [], initial_state)]
+
         # Track visited states to prevent cycles
         visited = {initial_state_tuple}
-        
+
         while pq:
             # Get the most promising state (lowest heuristic value)
-            heuristic, path, current_state = heappop(pq)
-            
+            heuristic, _, path, current_state = heappop(pq)
+
             # Check if current state is a solution
             game_copy.jogo = deepcopy(current_state)
             if game_copy.is_game_solved():
                 return path
-                
+
             # Stop if path is too long
             if len(path) >= max_depth:
                 continue
@@ -720,17 +738,18 @@ class GameSolver:
 
                     if valid:
                         new_state_tuple = state_to_tuple(new_state)
-                        
+
                         # Only explore states we haven't seen before
                         if new_state_tuple not in visited:
                             visited.add(new_state_tuple)
-                            
+
                             # Calculate heuristic for new state
                             new_heuristic = self._heuristic(new_state)
                             new_path = path + [(source + 1, dest + 1)]
-                            
+
                             # Add to queue, prioritized by heuristic
-                            heappush(pq, (new_heuristic, new_path, new_state))
+                            counter += 1
+                            heappush(pq, (new_heuristic, counter, new_path, new_state))
                             
         # No solution found within depth limit
         return None
