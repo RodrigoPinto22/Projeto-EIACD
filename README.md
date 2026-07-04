@@ -2,151 +2,108 @@
 
 ## About the Project
 
-Bird Sort Puzzle is a puzzle game where the objective is to organize colored birds on branches by grouping birds of the same color together. The project implements both a manual gameplay mode and several search algorithms for automatic solving.
+Bird Sort Puzzle is a puzzle game where the objective is to organize colored birds on branches by grouping birds of the same color together. This project implements several classical search algorithms to automatically solve randomly generated puzzle instances and provides benchmarking tools to compare their performance.
 
 ## How to Run
 
-To run the project, execute the following command in the terminal:
+To run the project, execute:
 
 ```bash
 python3 main.py
 ```
-### Board Size
 
-* You can choose between different board sizes (4 to 12 branches)
+### Configuration
 
-## Manual Game Instructions
+When the program starts, you will be prompted to:
 
-### Objective
+1. Select the board size (4–12 branches).
+2. Choose one of the available search algorithms.
 
-* Group all birds of the same color on the same branch
-* Each branch can hold a maximum of 4 birds
+The selected algorithm will then compute and display a step-by-step solution to the puzzle.
 
-### How to Play
+## Available Algorithms
 
-1. Enter the source branch number
-2. Enter the destination branch number
-3. The game will automatically move the maximum number of birds possible
+1. **Breadth-First Search (BFS)**
 
-### Movement Rules
+   * Finds the shortest solution.
+   * Computationally expensive for larger puzzles.
 
-* Only birds of the same color can be moved together
-* Moves follow specific directions:
+2. **Depth-First Search (DFS)**
 
-  * **Left Branches**:
+   * Quickly finds a solution.
+   * Does not guarantee the shortest solution.
 
-    * Removal: right → left
-    * Insertion: left → right
-  * **Right Branches**:
+3. **Iterative Deepening Depth-First Search (IDDFS)**
 
-    * Removal: left → right
-    * Insertion: right → left
+   * Combines the space efficiency of DFS with the completeness of BFS.
+   * Suitable for exploring increasing search depths.
 
-## Automatic Mode
+4. **Uniform Cost Search (UCS)**
 
-### Available Algorithms
+   * Expands states according to path cost.
+   * Equivalent to BFS in this problem since all moves have equal cost.
 
-1. **BFS (Breadth-First Search)**
+5. **Greedy Best-First Search**
 
-   * Finds the shortest solution
-   * Slower on larger puzzles
+   * Prioritizes states using a heuristic function.
+   * Very fast, although solutions may be suboptimal.
 
-2. **DFS (Depth-First Search)**
+6. **A\***
 
-   * Quickly finds a solution
-   * May not find the shortest solution
+   * Combines path cost and heuristic information.
+   * Provides a good balance between solution quality and execution time.
 
-3. **IDDFS (Iterative Deepening DFS)**
+7. **Weighted A\***
 
-   * Combines the efficiency of DFS with the optimality of BFS
-   * Good balance between memory usage and solution quality
+   * Variant of A* using a weighted heuristic.
+   * Faster than standard A* while potentially sacrificing optimality.
 
-4. **UCS (Uniform Cost Search)**
+## Goal State
 
-   * Similar to BFS for this puzzle
-   * All moves have equal cost
+A solution is reached when:
 
-5. **Greedy BFS**
+* Each branch is either empty or contains four birds of the same color.
+* All birds of the same color are grouped together.
 
-   * Very fast
-   * Solutions may be suboptimal
+## Performance Analysis (`benchmark.py`)
 
-6. **A***
+The project includes a benchmarking script for comparing the performance of the implemented search algorithms.
 
-   * Balances speed and solution quality
-   * Uses intelligent heuristics
-
-7. **Weighted A* (W = 1.5)**
-
-   * Faster than A*
-   * Sacrifices some solution quality for speed
-
-## Victory Conditions
-
-* All birds of the same color must be grouped on the same branch
-* Branches must be either completely full (4 birds) or empty
-
-## Possible Modifications
-
-1. Change the puzzle size (4–12 branches)
-2. Select different solving algorithms
-3. Adjust algorithm parameters (e.g., the weight used in Weighted A*)
-
-## Performance Analysis (benchmark.py)
-
-The project includes a performance analysis tool that allows comparison of the efficiency of different algorithms.
-
-### How to Run
-
-To execute the benchmark, run the following command in the terminal:
+### Running the Benchmark
 
 ```bash
 python3 benchmark.py
 ```
 
-### Features
+### Metrics
 
-* Runs each algorithm multiple times on different puzzle sizes
-* Measures and records:
+For each algorithm and board size, the benchmark reports:
 
-  * Average execution time
-  * Standard deviation of execution time
-  * Average number of moves
-  * Standard deviation of moves
-  * Success rate
+* Average execution time
+* Standard deviation of execution time
+* Average solution length
+* Standard deviation of solution length
+* Success rate
 
-### Default Settings
+### Default Configuration
 
-* Puzzle sizes tested: 4, 6, and 8 branches
-* 3 runs per algorithm
+* Board sizes: 4, 6 and 8 branches
+* Three executions per algorithm
 * Time limits:
-
   * Size 4: 10 seconds
   * Size 6: 20 seconds
   * Size 8: 30 seconds
 
-### Results
-
-* Results are stored in the `benchmark_results` folder
-* Each results file includes:
-
-  * Date and time of execution
-  * Configuration used
-  * Detailed results for each puzzle size
-* File naming format:
-
-```text
-benchmark_YYYYMMDD_HHMMSS.txt
-```
+Benchmark results are automatically saved in the `benchmark_results` directory.
 
 ## Project Structure
 
 ```text
 .
 ├── main.py          # Program entry point
-├── game.py          # Game implementation
-├── solver.py        # Uninformed search algorithms
-├── uninformed.py    # Informed search algorithms
-├── benchmark.py     # Benchmark script (optional)
-└── benchmark.txt    # Benchmark results
+├── game.py          # Bird Sort game implementation
+├── algorithms.py    # Search algorithm implementations
+├── benchmark.py     # Benchmarking script
+├── benchmark.txt    # Example benchmark results
+└── README.md
 ```
