@@ -4,6 +4,12 @@
 
 Bird Sort Puzzle is a puzzle game where the objective is to organize colored birds on branches by grouping birds of the same color together. This project implements several classical search algorithms to automatically solve randomly generated puzzle instances and provides benchmarking tools to compare their performance.
 
+## Game Rules
+
+The puzzle consists of several branches, each capable of holding up to four birds. Initially, birds of different colors are randomly distributed across the branches, leaving two branches empty. The objective is to group all birds of the same color onto the same branch.
+
+A move consists of transferring one or more consecutive birds of the same color from one branch to another. A move is valid only if the destination branch is empty or its top bird matches the color being moved, and there is sufficient space available. The puzzle is solved when every non-empty branch contains four birds of the same color.
+
 ## How to Run
 
 To run the project, execute:
